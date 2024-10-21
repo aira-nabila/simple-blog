@@ -49,10 +49,27 @@ class PostController extends Controller
 
     public function edit(Post $post)
     {
+        $categories = Category::all();
+        return view('posts.edit', compact('post', 'categories'));
     }
 
     public function update(Request $request, Post $post)
     {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'category_id' => 'required|exists:categories,id',
+        ]);
+
+        $post->update([
+            'title' => $request->get('title'),
+            'content' => $request->get('content'),
+            'slug' => Str::slug($request->get('title')),
+            'status' => $request->input('status', 0),
+            'category_id' => $request->category_id,
+        ]);
+
+        return redirect()->route('posts.index')->with('success', 'Post updated successfully.');
     }
 
     public function destroy(Post $post)
