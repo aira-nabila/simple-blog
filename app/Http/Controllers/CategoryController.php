@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -65,5 +66,11 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
+        if (Post::where('category_id', $category->id)->exists()) {
+            return redirect()->route('categories.index')->with('error', 'Category cannot be deleted because it is associated with existing posts.');
+        }
+
+        $category->delete();
+        return redirect()->route('categories.index')->with('success', 'Category deleted successfully.');
     }
 }
