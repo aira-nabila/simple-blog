@@ -43,10 +43,24 @@ class CategoryController extends Controller
 
     public function edit(Category $category)
     {
+        $categories = Category::all();
+        return view('category.edit', compact('category', 'categories'));
     }
 
     public function update(Request $request, Category $category)
     {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'parent_id' => 'nullable|exists:categories,id',
+        ]);
+
+        $category->update([
+            'name' => $request->get('name'),
+            'slug' => Str::slug($request->get('name')),
+            'parent_id' => $request->get('parent_id'),
+        ]);
+
+        return redirect()->route('categories.index')->with('success', 'Category updated successfully.');
     }
 
     public function destroy(Category $category)
